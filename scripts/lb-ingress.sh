@@ -1,6 +1,9 @@
 #!/bin/bash
 
-KUBECONFIG="/vagrant/configs/config"
+down="$1"
+up="$2"
+
+#KUBECONFIG="/vagrant/configs/config"
 
 kubectl get configmap kube-proxy -n kube-system -o yaml | \
 sed -e "s/strictARP: false/strictARP: true/" | \
@@ -10,6 +13,11 @@ kubectl get configmap kube-proxy -n kube-system -o yaml | \
 sed -e 's/mode: ""/mode: "ipvs"/' | \
 kubectl apply -f - -n kube-system
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.5/config/manifests/metallb-native.yaml
+kubectl apply -f metallb-native.yaml
 
-kubectl apply -f metallb.yaml
+sleep 2
+
+envsubst < metallb-template.yaml | kubectl apply -f -
+sleep 2
+
+envsubst < ingress-controller.yaml | kubectl apply -f -

@@ -2,9 +2,12 @@
 #
 # Setup for Control Plane (Master) servers
 
+args="$@"
+
 set -euxo pipefail
 
-MASTER_IP="192.168.1.50"
+#MASTER_IP="192.168.1.50"
+MASTER_IP="$args"
 NODENAME=$(hostname -s)
 POD_CIDR="192.168.0.0/16"
 
@@ -83,5 +86,3 @@ mkdir -p /home/vagrant/.kube
 sudo cp -i /vagrant/configs/config /home/vagrant/.kube/
 sudo chown 1000:1000 /home/vagrant/.kube/config
 EOF
-
-/bin/bash metal.sh

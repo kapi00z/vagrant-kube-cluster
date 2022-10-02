@@ -3,11 +3,13 @@ IP_NW="192.168.1."
 IP_START=50
 
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell", env: {"IP_NW" => IP_NW, "IP_START" => IP_START}, inline: <<-SHELL
+  config.vm.provision "shell", env: {"IP_NW" => IP_NW, "IP_START" => IP_START, "NUM_WORKER_NODES" => NUM_WORKER_NODES}, inline: <<-SHELL
       apt-get update -y
       echo "$IP_NW$((IP_START)) master-node" >> /etc/hosts
-      echo "$IP_NW$((IP_START+1)) worker-node01" >> /etc/hosts
-      echo "$IP_NW$((IP_START+2)) worker-node02" >> /etc/hosts
+      for i in $(seq $NUM_WORKER_NODES)
+      do 
+        echo "$IP_NW$((IP_START+i)) worker-node0$i" >> /etc/hosts
+      done
   SHELL
 
   config.vm.box = "bento/ubuntu-22.04"
@@ -22,7 +24,7 @@ Vagrant.configure("2") do |config|
         vb.cpus = 2
     end
     master.vm.provision "shell", path: "scripts/common.sh"
-    master.vm.provision "shell", path: "scripts/master.sh"
+    master.vm.provision "shell", path: "scripts/master.sh", args: IP_NW + "#{IP_START}"
   end
 
   (1..NUM_WORKER_NODES).each do |i|
